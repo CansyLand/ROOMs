@@ -1,5 +1,6 @@
-import { Entity, GltfContainer, MeshRenderer } from '@dcl/sdk/ecs'
+import { Entity, GltfContainer, Material, MeshRenderer, engine } from '@dcl/sdk/ecs'
 import { Vector3 } from '@dcl/sdk/math'
+import { CansyComponent } from './components'
 
 export function getRandomHexColor(): string {
   const letters = '0123456789ABCDEF'
@@ -63,5 +64,11 @@ export function addShape(entity: Entity, shape: string): void {
         src: shape
       })
       break
+  }
+}
+
+export function changeMaterial(material: any) {
+  for (const [entity] of engine.getEntitiesWith(CansyComponent)) {
+    Material.setPbrMaterial(entity, material)
   }
 }

@@ -1,4 +1,4 @@
-import { Entity, Transform, engine } from '@dcl/sdk/ecs'
+import { Entity, Rotate, Transform, engine } from '@dcl/sdk/ecs'
 import { Quaternion, Vector3 } from '@dcl/sdk/math'
 import { addShape, calculatePositionAlongLine } from './utils'
 import { IArrayOptions } from './types'
@@ -31,8 +31,10 @@ export function ArrayFromTo(options: IArrayOptions): Entity {
     const nextShapeIndex = index % shape.length
     const nextShape = shape[nextShapeIndex]
     // Add shape to the arrayChild based on nextShape
-    addShape(arrayChild, nextShape) // Ensure you have this function defined or adjust accordingly
+    addShape(arrayChild, nextShape)
   }
 
   return array
 }
+
+// ring
