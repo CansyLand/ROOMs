@@ -1,7 +1,7 @@
 import { SceneInstanceManager } from './SceneInstanceManager' // Adjust path as needed
 import { RoomCoordinate } from '../types'
 import { InputAction, MeshCollider, Transform, engine, pointerEventsSystem } from '@dcl/sdk/ecs'
-import { addShape } from '../utils'
+import { addShape, movePlayerThroughPortal, rotateCamera } from '../utils'
 import { Vector3 } from '@dcl/sdk/math'
 import { movePlayerTo } from '~system/RestrictedActions'
 
@@ -16,7 +16,7 @@ export function createPortal(
   pointerEventsSystem.onPointerDown(
     {
       entity: portal,
-      opts: { button: InputAction.IA_PRIMARY, hoverText: 'Next room' }
+      opts: { button: InputAction.IA_POINTER, hoverText: 'Next room' }
     },
     function () {
       const currentRoom = sceneManager.currentRoom
@@ -31,15 +31,8 @@ export function createPortal(
         currentRoom.z + direction.z
       )
       sceneManager.transitionToScene(targetRoom)
-
-      const playerPos = Transform.get(engine.PlayerEntity).position
-      const CameraPos = Transform.get(engine.CameraEntity).position
-      // const CameraRot = Transform.get(engine.CameraEntity).rotation
-      console.log(CameraPos)
-      movePlayerTo({
-        newRelativePosition: playerPos,
-        cameraTarget: Vector3.create(CameraPos.x, 1, CameraPos.z)
-      })
+      // rotateCamera()
+      movePlayerThroughPortal()
     }
   )
   Transform.create(portal, {

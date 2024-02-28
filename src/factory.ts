@@ -9,7 +9,7 @@ import {
   InputAction,
   Material
 } from '@dcl/sdk/ecs'
-import { Cube, Spinner } from './components'
+import { CansyComponent, Spinner } from './components'
 import { Color4 } from '@dcl/sdk/math'
 import { getRandomHexColor } from './utils'
 
@@ -18,7 +18,7 @@ export function createCube(x: number, y: number, z: number, spawner = true): Ent
   const entity = engine.addEntity()
 
   // Used to track the cubes
-  Cube.create(entity)
+  CansyComponent.create(entity)
 
   Transform.create(entity, { position: { x, y, z } })
 

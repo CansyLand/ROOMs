@@ -91,7 +91,7 @@ export function main() {
     }
   )
 
-  // const sceneManager = new SceneInstanceManager()
+  const sceneManager = new SceneInstanceManager()
   // sceneManager.addRoom(
   //   new RoomCoordinate(0, 0, 0),
   //   [circularSystem], // Assuming system1, system2 are defined
@@ -144,12 +144,14 @@ export function main() {
   //   return [entity]
   // }
 
-  // createPortal(Vector3.create(4, 1, 4), Vector3.create(1, 0, 0), 'box', sceneManager)
-  // createPortal(Vector3.create(4, 1, 6), Vector3.create(-1, 0, 0), 'sphere', sceneManager)
+  createPortal(Vector3.create(1, 1, 8), Vector3.create(1, 0, 0), 'box', sceneManager)
+  createPortal(Vector3.create(15, 1, 8), Vector3.create(-1, 0, 0), 'sphere', sceneManager)
+  createPortal(Vector3.create(8, 1, 1), Vector3.create(0, 0, 1), 'box', sceneManager)
+  createPortal(Vector3.create(8, 1, 15), Vector3.create(0, 0, -1), 'box', sceneManager)
 
   const sCube = CubeSharp({
     shape: ['box', '', 'box'],
-    size: 10,
+    size: 5,
     center: {
       x: 8,
       y: 20 - 8,

@@ -13,9 +13,20 @@ export class SceneInstanceManager {
   private activeSystems: any[] = [] // Keep track of active systems for removal
   private activeEntities: Entity[] = [] // Track active entities for removal
 
+  constructor() {
+    this.initDefaultRoom()
+  }
+
+  private initDefaultRoom(): void {
+    const defaultCoordinate = new RoomCoordinate(0, 0, 0)
+    this.loadScene(defaultCoordinate) // Load the initial room
+  }
+
   loadScene(coordinate: RoomCoordinate): void {
-    console.log(`Loading room at ${coordinate.toString()}`)
     this.currentRoom = coordinate
+
+    console.log(`Loading room at ${coordinate.toString()}`)
+    console.log(`Hash ${coordinate.toHash()}`)
 
     // Clear previous room entities and systems
     this.clearCurrentRoom()
