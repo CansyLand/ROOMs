@@ -2,6 +2,7 @@ import { Entity, Material, Transform, engine } from '@dcl/sdk/ecs'
 import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
 import { addShape } from '../utils'
 import { WiggleComponent, CansyComponent } from '../components'
+import { sceneManager } from '..'
 
 interface ICubeOptions {
   shape: string[]
@@ -19,16 +20,22 @@ export function CubeSoft(options: ICubeOptions): Entity {
   const step = size / density
 
   const cubeCenter = engine.addEntity()
+  CansyComponent.create(cubeCenter)
   Transform.create(cubeCenter, {
     position: center,
     rotation: rotation
   })
 
+  let maxedOut = false
+
   for (let face = 0; face < 6; face++) {
+    if (maxedOut) break
     for (let row = 0; row < density; row++) {
+      if (maxedOut) break
       for (let col = 0; col < density; col++) {
         const positionOffset = calculatePositionOffset(face, row, col, step, halfSize)
         const shapeEntity = engine.addEntity()
+        CansyComponent.create(shapeEntity)
 
         Transform.create(shapeEntity, {
           parent: cubeCenter,
@@ -41,6 +48,11 @@ export function CubeSoft(options: ICubeOptions): Entity {
         const nextShapeIndex = (face * density * density + row * density + col) % shape.length
         const nextShape = shape[nextShapeIndex]
         addShape(shapeEntity, nextShape)
+        if (sceneManager.isMaxedOut()) {
+          console.log('maxed out')
+          maxedOut = true
+          break
+        }
       }
     }
   }
@@ -98,6 +110,7 @@ export function CubeSoft(options: ICubeOptions): Entity {
 export function CubeSharp(options: ICubeOptions): Entity {
   const { shape, size, center, rotation = Quaternion.Zero(), density, shapeSize, material } = options
   const cubeCenter = engine.addEntity()
+  CansyComponent.create(cubeCenter)
   Transform.create(cubeCenter, {
     position: center,
     rotation: rotation
@@ -107,11 +120,16 @@ export function CubeSharp(options: ICubeOptions): Entity {
   const numShapesPerEdge = Math.floor(size / shapeSize)
   const actualStep = size / numShapesPerEdge // Adjusted step to fill the wall edge to edge
 
+  let maxedOut = false
+
   for (let face = 0; face < 6; face++) {
+    if (maxedOut) break
     for (let row = 0; row < numShapesPerEdge; row++) {
+      if (maxedOut) break
       for (let col = 0; col < numShapesPerEdge; col++) {
         const positionOffset = calculatePositionOffset(face, row, col, actualStep, size / 2, shapeSize)
         const shapeEntity = engine.addEntity()
+        CansyComponent.create(shapeEntity)
 
         Transform.create(shapeEntity, {
           parent: cubeCenter,
@@ -126,14 +144,17 @@ export function CubeSharp(options: ICubeOptions): Entity {
           phase: 10
         })
 
-        CansyComponent.create(shapeEntity)
-
         Material.setPbrMaterial(shapeEntity, material)
 
         const nextShapeIndex =
           (face * numShapesPerEdge * numShapesPerEdge + row * numShapesPerEdge + col) % shape.length
         const nextShape = shape[nextShapeIndex]
         addShape(shapeEntity, nextShape)
+        if (sceneManager.isMaxedOut()) {
+          console.log('maxed out')
+          maxedOut = true
+          break
+        }
       }
     }
   }

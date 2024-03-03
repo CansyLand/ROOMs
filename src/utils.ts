@@ -12,6 +12,7 @@ import {
 import { Vector3 } from '@dcl/sdk/math'
 import { CansyComponent } from './components'
 import { movePlayerTo } from '~system/RestrictedActions'
+import { sceneManager } from '.'
 
 export function getRandomHexColor(): string {
   const letters = '0123456789ABCDEF'
@@ -49,9 +50,11 @@ export function calculatePositionAlongLine(
 }
 
 export function addShape(entity: Entity, shape: string): void {
+  sceneManager.addEntiy()
   switch (shape) {
     case 'box':
       MeshRenderer.setBox(entity)
+      sceneManager.addPolygon(12)
       break
 
     case 'plane':
@@ -165,4 +168,59 @@ function quaternionToDirection(
   const vz = 1 - 2 * (x * x + y * y)
 
   return { x: vx, y: vy, z: vz } // Assuming Vector3 is structured as { x, y, z }
+}
+
+/**
+ * Creates a substring extractor for a given string. This extractor function returns
+ * another function that, when called with a length, returns a substring of that length
+ * starting from the current position in the original string. After reaching the end
+ * of the string, it loops back to the beginning, allowing for continuous substring
+ * extraction in a cyclic manner. The extractor keeps track of the position, ensuring
+ * sequential extraction based on the last extraction point.
+ *
+ * @param initialString The initial string from which substrings will be extracted.
+ * @returns A function that takes a length (number) and returns a substring of the
+ *          specified length from the initial string, looping back to the start if
+ *          the end is reached.
+ */
+export function createSubstringExtractor(initialString: string) {
+  let currentPosition = 0 // Keeps track of the current position within the string
+
+  return function getNextSubstring(length: number): string {
+    const totalLength = initialString.length
+    let substring: string
+
+    // Check if we need to loop back to the start of the string
+    if (currentPosition + length > totalLength) {
+      // If the requested substring extends beyond the string's end, wrap around
+      substring =
+        initialString.substring(currentPosition) + initialString.substring(0, (currentPosition + length) % totalLength)
+      currentPosition = (currentPosition + length) % totalLength
+    } else {
+      // Extract the substring normally
+      substring = initialString.substring(currentPosition, currentPosition + length)
+      currentPosition += length
+    }
+
+    return substring
+  }
+}
+
+/**
+ * Maps a number from its original range to a specified target range.
+ *
+ * @param value The number to be mapped.
+ * @param minTarget The minimum value of the target range.
+ * @param maxTarget The maximum value of the target range.
+ * @returns The number mapped to the target range.
+ */
+export function mapNumberToRange(value: number, minTarget: number, maxTarget: number): number {
+  // Determine the maximum possible value based on the length of the input number
+  const maxBase = Math.pow(10, value.toString().length) - 1
+
+  // Normalize the value to a 0-1 range (relative to its possible max value)
+  const normalized = value / maxBase
+
+  // Scale the normalized value to the target range
+  return minTarget + normalized * (maxTarget - minTarget)
 }
