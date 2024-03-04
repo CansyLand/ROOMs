@@ -9,48 +9,6 @@ export class RoomCoordinate {
     return this.x === other.x && this.y === other.y && this.z === other.z
   }
 
-  // private static simpleChecksum(s: string): number {
-  //   return s.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 256
-  // }
-
-  // private static scramble(hash: string, iterations: number = 10): string {
-  //   let scrambled = hash
-  //   for (let i = 0; i < iterations; i++) {
-  //     const checksum = RoomCoordinate.simpleChecksum(scrambled)
-  //     scrambled = scrambled
-  //       .split('')
-  //       .map((char, index) => {
-  //         const charCode = scrambled.charCodeAt((index + checksum) % scrambled.length)
-  //         return String.fromCharCode((charCode + checksum) % 256)
-  //       })
-  //       .join('')
-  //   }
-  //   return scrambled
-  // }
-
-  // toUniqueId(): string {
-  //   let numericHash = this.simpleHashFunction(this.toString())
-  //   numericHash = RoomCoordinate.scramble(numericHash)
-  //   let numericString = numericHash.toString()
-
-  //   while (numericString.length < 40) {
-  //     numericString = '0' + numericString
-  //   }
-  //   numericString = numericString.substring(0, 40)
-
-  //   return numericString
-  // }
-
-  // private simpleHashFunction(input: string): string {
-  //   let hash = 0
-  //   for (let i = 0; i < input.length; i++) {
-  //     const char = input.charCodeAt(i)
-  //     hash = (hash << 40) - hash + char
-  //     hash = hash & hash
-  //   }
-  //   return hash.toString()
-  // }
-
   toUniqueId(): string {
     // Initial hash function using primes
     const prime1 = 73856093

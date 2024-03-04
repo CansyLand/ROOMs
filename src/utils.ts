@@ -9,7 +9,7 @@ import {
   Transform,
   engine
 } from '@dcl/sdk/ecs'
-import { Vector3 } from '@dcl/sdk/math'
+import { Quaternion, Vector3 } from '@dcl/sdk/math'
 import { CansyComponent } from './components'
 import { movePlayerTo } from '~system/RestrictedActions'
 import { sceneManager } from '.'
@@ -50,11 +50,11 @@ export function calculatePositionAlongLine(
 }
 
 export function addShape(entity: Entity, shape: string): void {
-  sceneManager.addEntiy()
+  //sceneManager.addEntiy()
   switch (shape) {
     case 'box':
       MeshRenderer.setBox(entity)
-      sceneManager.addPolygon(12)
+      //sceneManager.addPolygon(12)
       break
 
     case 'plane':
@@ -223,4 +223,48 @@ export function mapNumberToRange(value: number, minTarget: number, maxTarget: nu
 
   // Scale the normalized value to the target range
   return minTarget + normalized * (maxTarget - minTarget)
+}
+
+export function getQuaternion(roomId: string): Quaternion {
+  const substring = createSubstringExtractor(roomId)
+
+  // Extract substring values and map them to angles
+  const angleX = mapNumberToRange(parseInt(substring(2), 10), 0, 360) // 0 to 360 degrees for X-axis rotation
+  const angleY = mapNumberToRange(parseInt(substring(2), 10), 0, 360) // 0 to 360 degrees for Y-axis rotation
+  const angleZ = mapNumberToRange(parseInt(substring(2), 10), 0, 360) // 0 to 360 degrees for Z-axis rotation
+
+  // Create quaternion from Euler angles
+  const quaternion = Quaternion.fromEulerDegrees(angleX, angleY, angleZ)
+
+  return quaternion
+}
+
+class MyQuaternion {
+  constructor(public w: number, public x: number, public y: number, public z: number) {}
+
+  static multiply(q1: MyQuaternion, q2: MyQuaternion): MyQuaternion {
+    return new MyQuaternion(
+      q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z, // real part
+      q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y, // i component
+      q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x, // j component
+      q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w // k component
+    )
+  }
+
+  static invert(q: MyQuaternion): MyQuaternion {
+    let norm = q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z
+    return new MyQuaternion(q.w / norm, -q.x / norm, -q.y / norm, -q.z / norm)
+  }
+}
+
+// Function to rotate a vector using MyQuaternion
+export function rotateVector(
+  v: { x: number; y: number; z: number },
+  q: MyQuaternion
+): { x: number; y: number; z: number } {
+  let vectorQuat = new MyQuaternion(0, v.x, v.y, v.z)
+  let qInverse = MyQuaternion.invert(q)
+  let rotatedQuat = MyQuaternion.multiply(MyQuaternion.multiply(q, vectorQuat), qInverse)
+
+  return { x: rotatedQuat.x, y: rotatedQuat.y, z: rotatedQuat.z }
 }

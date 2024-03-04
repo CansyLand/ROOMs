@@ -21,11 +21,12 @@ import { changeColorSystem, circularSystem, circularSystem2, wiggleSystem } from
 import { setupUi } from './ui'
 import { ArrayFromTo } from './roomInstallation'
 import { movePlayerTo } from '~system/RestrictedActions'
-import { CubeSharp, CubeSoft } from './art/cubes'
 import { changeMaterial } from './utils'
 import { SceneManager } from './systems/SceneManager'
 import { PortalCreator } from './systems/Portals'
-import { bigGlowShapes, smallGlowShapes } from './art/rooms'
+// import { bigGlowShapes, smallGlowShapes } from './art/rooms'
+import { ArtInstallation } from './systems/ArtInstallation'
+import { cubeShape, planeShape, sphereShape } from './systems/SwarmShapes'
 
 // You can remove this if you don't use any asset packs
 initAssetPacks(engine, pointerEventsSystem, {
@@ -44,6 +45,7 @@ initAssetPacks(engine, pointerEventsSystem, {
 //
 //
 
+export const artInstallation = new ArtInstallation(180)
 export const sceneManager = new SceneManager()
 
 export function main() {
@@ -99,8 +101,10 @@ export function main() {
   p.createPortal(Vector3.create(8, 10, 1), Vector3.create(0, 0, 1), 'box')
   p.createPortal(Vector3.create(8, 10, 15), Vector3.create(0, 0, -1), 'box')
 
-  sceneManager.addRoom([bigGlowShapes], [])
-  sceneManager.addRoom([smallGlowShapes], [])
+  // sceneManager.addRoom([bigGlowShapes], [])
+  // sceneManager.addRoom([smallGlowShapes], [])
+
+  artInstallation.addSwarmShapes([cubeShape, sphereShape, planeShape])
 
   // sceneManager.addRoom(
   //   new RoomCoordinate(0, 0, 0),
