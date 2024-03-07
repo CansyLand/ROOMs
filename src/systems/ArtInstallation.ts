@@ -1,8 +1,22 @@
-import { Entity, GltfContainer, MeshRenderer, Transform, engine } from '@dcl/sdk/ecs'
-import { CansyComponent } from '../components'
-import { Plane, ToLinearSpace } from '@dcl/sdk/math'
+import {
+  Entity,
+  GltfContainer,
+  MeshRenderer,
+  Transform,
+  TransformComponent,
+  TransformComponentExtended,
+  TransformTypeWithOptionals,
+  engine
+} from '@dcl/sdk/ecs'
+import {
+  CansyComponent,
+  C_ForceComponent,
+  C_TransformComponent,
+  C_TransformComponentDefaultValues
+} from '../components'
+import { Plane, Quaternion, ToLinearSpace, Vector3 } from '@dcl/sdk/math'
 
-type SystemFunction = () => void
+type SystemInitFunction = (roomId: string, entitiesCount: number) => string
 type SwarmShapeFunction = (roomId: string, entitiesCount: number) => void
 
 export class ArtInstallation {
@@ -13,34 +27,64 @@ export class ArtInstallation {
   private installationEntity!: Entity
 
   private swarmShapes: SwarmShapeFunction[] | null = null
+  private swarmSystems: SystemInitFunction[] | null = null
+  private activeSystems: string[] = []
   //   private systemsPosition: SystemFunction[]
   //   private systemsRotation: SystemFunction[]
   //   private systemsSize: SystemFunction[]
   //   private systemsColor: SystemFunction[]
 
-  constructor(entitiesCount: number) {
+  private parentTransform: TransformTypeWithOptionals
+
+  constructor(position: Vector3, entitiesCount: number) {
     this.entitiesCount = entitiesCount
-    this.initializeSwarm(entitiesCount)
+    this.parentTransform = {
+      position: position,
+      rotation: Quaternion.Zero(),
+      scale: Vector3.create(1, 1, 1)
+    }
+    this.initializeSwarm(this.parentTransform, entitiesCount)
   }
 
-  private initializeSwarm(entitiesCount: number) {
+  private initializeSwarm(transform: TransformTypeWithOptionals, entitiesCount: number) {
     this.installationEntity = engine.addEntity()
-    Transform.create(this.installationEntity, {
-      position: { x: 8, y: 20 - 8, z: 8 }
-    })
+    Transform.create(this.installationEntity, transform)
     for (let index = 0; index < entitiesCount; index++) {
       const swarmEntity = engine.addEntity()
+      Transform.create(swarmEntity, {
+        parent: this.parent()
+      })
       CansyComponent.create(swarmEntity)
-      Transform.create(swarmEntity)
+      C_TransformComponent.create(swarmEntity)
+      // C_ForceComponent.create(swarmEntity, {
+      //   originalPosition: { x: 0, y: 0, z: 0 },
+      //   isMoved: false
+      // })
     }
   }
 
   clear() {
+    // Remove all components
     for (const [entity] of engine.getEntitiesWith(CansyComponent)) {
       GltfContainer.deleteFrom(entity)
       MeshRenderer.deleteFrom(entity)
       this.polygonCount = 0
     }
+    // Reset parent entity
+    Transform.createOrReplace(this.installationEntity, this.parentTransform)
+    // Remove running systems in array
+    this.activeSystems.forEach((systemId) => {
+      engine.removeSystem(systemId)
+    })
+    this.activeSystems = []
+  }
+
+  parent(): Entity {
+    return this.installationEntity
+  }
+
+  getParentTransform(): TransformTypeWithOptionals {
+    return this.parentTransform
   }
 
   addSwarmShapes(swarmShapes: SwarmShapeFunction[]) {
@@ -65,8 +109,19 @@ export class ArtInstallation {
     }
   }
 
-  parent(): Entity {
-    return this.installationEntity
+  addSwarmSystems(swarmSystems: SystemInitFunction[]) {
+    this.swarmSystems = swarmSystems
+  }
+
+  runSwarmSystem(roomId: string) {
+    if (!this.swarmSystems) {
+      console.error('Swarm systems not set.')
+      return
+    }
+    const index = parseInt(roomId.substring(0, 2), 10) % this.swarmSystems.length
+    const systemFunction = this.swarmSystems[index]
+    const systemIdentifier = systemFunction(roomId, this.entitiesCount)
+    this.activeSystems.push(systemIdentifier)
   }
 }
 
@@ -75,6 +130,7 @@ export class ArtInstallation {
 //   position
 //     constant
 //     wiggle
+//     follow next entity
 //   rotation
 //     constant
 //     wiggle
@@ -84,20 +140,28 @@ export class ArtInstallation {
 //   color
 //     rainbow smooth
 //     rainbow click
+// random position flicker
 
 //   SWARM SHAPE
 //     cube
 //     sphere
 //     room
 //     random
+//     matrix
 //     wall
 //     array
 //     spiral
 //     snake
+//     linie
+//      creative mathematic wonders
 
 //    SHAPES
 //     Cube
+//     flat cubes
 //     plane
 //     line
 //     line between entities
 //     GLTF
+
+//      Wearable
+//      Emote

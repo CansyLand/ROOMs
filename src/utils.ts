@@ -49,6 +49,7 @@ export function calculatePositionAlongLine(
   return Vector3.create(positionX, positionY, positionZ)
 }
 
+// Ads visible shape like 'box', 'sphere' or gltf
 export function addShape(entity: Entity, shape: string): void {
   //sceneManager.addEntiy()
   switch (shape) {
@@ -225,6 +226,27 @@ export function mapNumberToRange(value: number, minTarget: number, maxTarget: nu
   return minTarget + normalized * (maxTarget - minTarget)
 }
 
+/**
+ * Extracts a substring using a given extractor function, parses the substring to an integer,
+ * and then maps this integer from its original range (based on its length) to a specified target range.
+ *
+ * @param {Function} extractor A function that extracts the next substring of a given length from a larger string.
+ * @param {number} length The length of the substring to extract.
+ * @param {number} minRange The minimum value of the target range.
+ * @param {number} maxRange The maximum value of the target range.
+ * @returns {number} The extracted and mapped number, now within the specified target range.
+ */
+
+export function extractAndMap(
+  extractor: (length: number) => string,
+  length: number,
+  minRange: number,
+  maxRange: number
+) {
+  const extractedValue = parseInt(extractor(length), 10)
+  return mapNumberToRange(extractedValue, minRange, maxRange)
+}
+
 export function getQuaternion(roomId: string): Quaternion {
   const substring = createSubstringExtractor(roomId)
 
@@ -267,4 +289,14 @@ export function rotateVector(
   let rotatedQuat = MyQuaternion.multiply(MyQuaternion.multiply(q, vectorQuat), qInverse)
 
   return { x: rotatedQuat.x, y: rotatedQuat.y, z: rotatedQuat.z }
+}
+
+export function generateRandomString(length = 5) {
+  let result = ''
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+  const charactersLength = characters.length
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
+  }
+  return result
 }

@@ -1,7 +1,62 @@
 import { engine, Transform, inputSystem, PointerEvents, InputAction, PointerEventType, Material } from '@dcl/sdk/ecs'
 import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
-import { Spinner, WiggleComponent, CansyComponent } from './components'
+import { Spinner, WiggleComponent, CansyComponent, C_ForceComponent, C_TransformComponent } from './components'
 import { getRandomHexColor } from './utils'
+import { artInstallation } from '.'
+
+// Manages the Transform of entities
+
+export function C_updateAbstractTransformSystem(dt: number) {
+  for (const [entity] of engine.getEntitiesWith(CansyComponent)) {
+    const transformComp = C_TransformComponent.getMutable(entity)
+    const entityTransform = Transform.getMutable(entity)
+
+    // Calculate Global Transform Position (no need for rotation and scale)
+    const parentTransfrom = artInstallation.getParentTransform()
+    transformComp.globalTransform.position = Vector3.add(
+      transformComp.localTransform.position,
+      parentTransfrom.position!
+    )
+
+    // Update Entity's Actual Transform with the computed values
+    entityTransform.position = Vector3.add(
+      transformComp.localTransform.position,
+      transformComp.deviationTransform.position
+    )
+    entityTransform.rotation = transformComp.localTransform.rotation
+    entityTransform.scale = transformComp.localTransform.scale
+  }
+}
+
+// pushes entites away from player if to close
+export function C_forceFieldSystem(dt: number) {
+  const playerPos = Transform.get(engine.PlayerEntity).position
+  const forceFieldRadius = 3 // Set to 3 meters as specified
+
+  for (const [entity] of engine.getEntitiesWith(C_TransformComponent)) {
+    const transformComp = C_TransformComponent.getMutable(entity)
+
+    // Calculate distance based on the entity's globalTransform position
+    const directionToPlayer = Vector3.subtract(playerPos, transformComp.globalTransform.position)
+    const distanceToPlayer = Vector3.length(directionToPlayer)
+
+    // Check if the player is within the forceFieldRadius
+    if (distanceToPlayer < forceFieldRadius) {
+      // Calculate the deviation needed to push the entity away from the player
+      const moveDirection = Vector3.normalize(directionToPlayer)
+      const moveDistance = forceFieldRadius - distanceToPlayer // The amount to push away
+
+      // Update the deviationTransform.position to push the entity away
+      transformComp.deviationTransform.position = Vector3.subtract(
+        Vector3.Zero(),
+        Vector3.scale(moveDirection, moveDistance)
+      )
+    } else {
+      // Reset the deviationTransform.position if the player is outside the forceFieldRadius
+      transformComp.deviationTransform.position = Vector3.Zero()
+    }
+  }
+}
 
 /**
  * All cubes rotating behavior

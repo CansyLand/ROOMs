@@ -44,7 +44,9 @@ export class SceneManager {
     if (roomConfig) {
       this.activateRoomConfig(roomConfig)
     } else {
-      artInstallation.updateSwarmShape(this.currentRoom.toUniqueId())
+      const id = this.currentRoom.toUniqueId()
+      artInstallation.updateSwarmShape(id)
+      artInstallation.runSwarmSystem(id)
       //   const index = parseInt(this.currentRoomId.substring(0, 2), 16)
       //   const randomRoomConfig = this.getRoomByIndex(index)
       //   if (randomRoomConfig) {

@@ -17,7 +17,14 @@ import {
 
 import { initAssetPacks } from '@dcl/asset-packs/dist/scene-entrypoint'
 
-import { changeColorSystem, circularSystem, circularSystem2, wiggleSystem } from './systems'
+import {
+  C_forceFieldSystem,
+  C_updateAbstractTransformSystem,
+  changeColorSystem,
+  circularSystem,
+  circularSystem2,
+  wiggleSystem
+} from './systems'
 import { setupUi } from './ui'
 import { ArrayFromTo } from './roomInstallation'
 import { movePlayerTo } from '~system/RestrictedActions'
@@ -26,7 +33,20 @@ import { SceneManager } from './systems/SceneManager'
 import { PortalCreator } from './systems/Portals'
 // import { bigGlowShapes, smallGlowShapes } from './art/rooms'
 import { ArtInstallation } from './systems/ArtInstallation'
-import { cubeShape, planeShape, sphereShape } from './systems/SwarmShapes'
+import {
+  cubeShape,
+  fibonacciSphereShape,
+  goldenSpiralShape,
+  lissajousCurveShape,
+  matrixShape,
+  mobiusStripShape,
+  planeShape,
+  randomShape,
+  sphereShape,
+  spiralShape,
+  torusKnotShape
+} from './systems/SwarmShapes'
+import { rotateEntities, rotationSystem } from './systems/SwarmSystems'
 
 // You can remove this if you don't use any asset packs
 initAssetPacks(engine, pointerEventsSystem, {
@@ -45,7 +65,8 @@ initAssetPacks(engine, pointerEventsSystem, {
 //
 //
 
-export const artInstallation = new ArtInstallation(180)
+// export const artInstallation = new ArtInstallation(Vector3.create(8, 20 - 8, 8), 180)
+export const artInstallation = new ArtInstallation({ x: 8, y: 20 - 10, z: 8 }, 180)
 export const sceneManager = new SceneManager()
 
 export function main() {
@@ -63,7 +84,7 @@ export function main() {
   //   position: Vector3.create(9, 0, 7)
   // })
 
-  // CANSY CUBE
+  // MODIFIED MESH CUBE
   const cube = engine.addEntity()
   GltfContainer.create(cube, {
     src: 'models/cansy_cube_1.glb'
@@ -95,6 +116,7 @@ export function main() {
     }
   )
 
+  // PORTALS
   const p = new PortalCreator(sceneManager)
   p.createPortal(Vector3.create(1, 10, 8), Vector3.create(1, 0, 0), 'box')
   p.createPortal(Vector3.create(15, 10, 8), Vector3.create(-1, 0, 0), 'box')
@@ -104,7 +126,27 @@ export function main() {
   // sceneManager.addRoom([bigGlowShapes], [])
   // sceneManager.addRoom([smallGlowShapes], [])
 
-  artInstallation.addSwarmShapes([cubeShape, sphereShape, planeShape])
+  // Test installation
+  // artInstallation.addSwarmShapes([fibonacciSphereShape])
+  // Actual installation
+  artInstallation.addSwarmShapes([
+    cubeShape,
+    sphereShape,
+    planeShape,
+    randomShape,
+    matrixShape,
+    spiralShape,
+    goldenSpiralShape,
+    lissajousCurveShape,
+    mobiusStripShape,
+    torusKnotShape,
+    fibonacciSphereShape
+  ])
+
+  artInstallation.addSwarmSystems([rotateEntities])
+
+  engine.addSystem(C_updateAbstractTransformSystem, 5)
+  engine.addSystem(C_forceFieldSystem, 10)
 
   // sceneManager.addRoom(
   //   new RoomCoordinate(0, 0, 0),
