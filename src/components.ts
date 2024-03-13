@@ -8,7 +8,8 @@ export const C_Portal = engine.defineComponent('c-portal', {
   right: Schemas.Entity,
   top: Schemas.Entity,
   isOpening: Schemas.Boolean,
-  animationProgress: Schemas.Float
+  animationProgress: Schemas.Float,
+  audioTrigger: Schemas.Boolean
 })
 
 export const C_TransformComponentDefaultValues = {

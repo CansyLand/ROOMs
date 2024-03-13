@@ -1,6 +1,14 @@
 // Assuming the SceneManager and other dependencies are correctly imported
 import { SceneManager } from './SceneManager' // Adjust path as needed
-import { GltfContainer, InputAction, MeshCollider, Transform, engine, pointerEventsSystem } from '@dcl/sdk/ecs'
+import {
+  AudioSource,
+  GltfContainer,
+  InputAction,
+  MeshCollider,
+  Transform,
+  engine,
+  pointerEventsSystem
+} from '@dcl/sdk/ecs'
 import { addShape, movePlayerThroughPortal } from '../utils'
 import { Quaternion, Vector3 } from '@dcl/sdk/math'
 import { RoomCoordinate } from './RoomCoordinate'
@@ -9,13 +17,13 @@ import { C_Portal } from '../components'
 export class PortalCreator {
   constructor(private sceneManager: SceneManager) {}
 
-  createPortal(position: Vector3, rotation: Vector3, direction: Vector3, shape: string): void {
+  createPortal(position: Vector3, rotation: Vector3, direction: Vector3, shape: string, hoverText: string): void {
     const portal = engine.addEntity()
 
     pointerEventsSystem.onPointerDown(
       {
         entity: portal,
-        opts: { button: InputAction.IA_POINTER, hoverText: 'Next room', maxDistance: 6 }
+        opts: { button: InputAction.IA_POINTER, hoverText: hoverText, maxDistance: 6 }
       },
       () => this.handlePortalInteraction(direction)
     )
@@ -62,7 +70,8 @@ export class PortalCreator {
     C_Portal.create(portal, {
       right: portal_right,
       left: portal_left,
-      top: portal_top
+      top: portal_top,
+      audioTrigger: true
     })
   }
 

@@ -1,4 +1,5 @@
 import {
+  AudioSource,
   Entity,
   GltfContainer,
   Material,
@@ -17,6 +18,7 @@ import {
   C_TransformComponentDefaultValues
 } from '../components'
 import { Plane, Quaternion, ToLinearSpace, Vector3 } from '@dcl/sdk/math'
+import { C_initColorComponent } from './ColorSystems'
 
 type SystemInitFunction = (roomId: string, entitiesCount: number) => string
 type SwarmShapeFunction = (roomId: string, entitiesCount: number) => void
@@ -27,14 +29,12 @@ export class ArtInstallation {
   private readonly maxPolygonCount: number = 9500 // Maximum allowed polygons
 
   private installationEntity!: Entity
+  private audioEntity!: Entity
 
   private swarmShapes: SwarmShapeFunction[] | null = null
   private swarmSystems: SystemInitFunction[] | null = null
+  private colorSystems: SystemInitFunction[] | null = null
   private activeSystems: string[] = []
-  //   private systemsPosition: SystemFunction[]
-  //   private systemsRotation: SystemFunction[]
-  //   private systemsSize: SystemFunction[]
-  //   private systemsColor: SystemFunction[]
 
   private parentTransform: TransformTypeWithOptionals
 
@@ -58,16 +58,14 @@ export class ArtInstallation {
       })
       CansyComponent.create(swarmEntity)
       C_TransformComponent.create(swarmEntity)
-      // C_ForceComponent.create(swarmEntity, {
-      //   originalPosition: { x: 0, y: 0, z: 0 },
-      //   isMoved: false
-      // })
       Material.setPbrMaterial(swarmEntity, {
-        albedoColor: { r: 4, g: 2, b: 4, a: 1 },
+        albedoColor: { r: 4, g: 4, b: 4, a: 1 },
         metallic: 0.8,
         roughness: 0.1
       })
+      C_initColorComponent(swarmEntity)
     }
+    this.initAudio()
   }
 
   clear() {
@@ -134,6 +132,57 @@ export class ArtInstallation {
     const systemIdentifier = systemFunction(roomId, this.entitiesCount)
     this.activeSystems.push(systemIdentifier)
   }
+
+  addColorSystem(colorSystem: SystemInitFunction[]) {
+    this.colorSystems = colorSystem
+  }
+
+  runColorSystem(roomId: string) {
+    if (!this.colorSystems) {
+      console.error('Color system not set.')
+      return
+    }
+    const index = parseInt(roomId.substring(10, 12), 10) % this.colorSystems.length
+    const systemFunction = this.colorSystems[index]
+    const systemIdentifier = systemFunction(roomId, this.entitiesCount)
+    this.activeSystems.push(systemIdentifier)
+  }
+
+  initAudio() {
+    this.audioEntity = engine.addEntity()
+    Transform.create(this.audioEntity, {
+      parent: this.installationEntity,
+      position: Vector3.create(0, 4, 0)
+    })
+  }
+
+  playAudio(roomId: string) {
+    const audioFiles = [
+      '#NASA Sonification of Jellyfish Nebula',
+      'Bullet Cluster Sonification',
+      'Cats Eye Nebula (NGC 6543) Sonification',
+      'Crab Nebula Sonification',
+      'Data Sonification Black Hole at the Center of Galaxy M87 (Multiwavelength)',
+      'Data Sonification Black Hole at the Center of the Perseus Galaxy Cluster (X-ray)',
+      'M51 (Whirlpool Galaxy) Sonification',
+      'M104 Sonification of Chandra X-Ray Observatory, NASA Telescopes',
+      'Milky Way’s Central Black Hole Sonification from NASAs IXPE',
+      'R Aquarii Sonification from Chandra X-Ray Observatory, NASA Telescopes',
+      'Sonification of Ghostly Cosmic Hand',
+      'Sonification of Phantom Galaxy',
+      'Sounds from Around the Milky Way',
+      'Stephans Quintet Sonification from Chandra X-Ray Observatory, NASA Telescopes',
+      'sun_sonification',
+      'Supernova 1987A Sonification'
+    ]
+    const index = parseInt(roomId.substring(5, 8), 10) % audioFiles.length
+
+    AudioSource.createOrReplace(this.audioEntity, {
+      audioClipUrl: 'NASA/' + audioFiles[index] + '.mp3',
+      loop: true,
+      playing: true
+    })
+  }
 }
 
 //   SYSTEMS - combinable
@@ -185,5 +234,18 @@ export class ArtInstallation {
 // change color over time
 // do nothing stay in color
 
-//      Wearable
-//      Emote
+//      WARABLE
+//      EMOTE
+
+// VOICES
+// David Boles
+// Neil - calm and deep
+// George
+// Lucifer
+// Arnold - Courageous Valiant
+// John Divine  //Christan coice
+// Brian
+// Theodore - Oldschool Cool
+// Matthew - calm and peaceful
+// Arnold - Courageous Valiant
+// Carmen - calm, thoughtful

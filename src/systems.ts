@@ -1,4 +1,13 @@
-import { engine, Transform, inputSystem, PointerEvents, InputAction, PointerEventType, Material } from '@dcl/sdk/ecs'
+import {
+  engine,
+  Transform,
+  inputSystem,
+  PointerEvents,
+  InputAction,
+  PointerEventType,
+  Material,
+  AudioSource
+} from '@dcl/sdk/ecs'
 import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
 import {
   Spinner,
@@ -153,6 +162,16 @@ function C_updatePortalComponents(portalComp: any, dt: number) {
     leftBar.scale.y = rightBar.scale.y = portalScale
     topBar.scale.x = 1
     topBar.position.y = topBarPosition
+    portalComp.audioTrigger = true
+  }
+
+  if (portalComp.animationProgress > 0 && portalComp.animationProgress < 1 && portalComp.audioTrigger) {
+    AudioSource.createOrReplace(portalComp.top, {
+      audioClipUrl: 'audio/confirm_style_4_echo_003.mp3',
+      loop: false,
+      playing: true
+    })
+    portalComp.audioTrigger = false
   }
 }
 

@@ -47,6 +47,8 @@ export class SceneManager {
       const id = this.currentRoom.toUniqueId()
       artInstallation.updateSwarmShape(id)
       artInstallation.runSwarmSystem(id)
+      artInstallation.runColorSystem(id)
+      artInstallation.playAudio(id)
       //   const index = parseInt(this.currentRoomId.substring(0, 2), 16)
       //   const randomRoomConfig = this.getRoomByIndex(index)
       //   if (randomRoomConfig) {

@@ -32,6 +32,7 @@ export class RoomCoordinate {
     // Ensure the final ID is not too long or too short
     finalId = finalId.substring(0, 20) // Adjust this as needed
 
+    if (finalId == '0000') finalId = '00000000000000000000000000000000'
     return finalId
   }
 }

@@ -50,6 +50,7 @@ import {
   rotateEntities,
   rotationSystem
 } from './systems/SwarmSystems'
+import { C_initRandomColor } from './systems/ColorSystems'
 
 // You can remove this if you don't use any asset packs
 initAssetPacks(engine, pointerEventsSystem, {
@@ -129,10 +130,10 @@ export function main() {
 
   // PORTALS
   const p = new PortalCreator(sceneManager)
-  p.createPortal(Vector3.create(2, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(1, 0, 0), 'box')
-  p.createPortal(Vector3.create(14, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(-1, 0, 0), 'box')
-  p.createPortal(Vector3.create(8, 8.1288, 2), Vector3.create(0, 0, 0), Vector3.create(0, 0, 1), 'box')
-  p.createPortal(Vector3.create(8, 8.1288, 14), Vector3.create(0, 0, 0), Vector3.create(0, 0, -1), 'box')
+  p.createPortal(Vector3.create(2, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(1, 0, 0), 'box', 'WEST')
+  p.createPortal(Vector3.create(14, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(-1, 0, 0), 'box', 'EAST')
+  p.createPortal(Vector3.create(8, 8.1288, 2), Vector3.create(0, 0, 0), Vector3.create(0, 0, 1), 'box', 'SOUTH')
+  p.createPortal(Vector3.create(8, 8.1288, 14), Vector3.create(0, 0, 0), Vector3.create(0, 0, -1), 'box', 'NORTH')
 
   // sceneManager.addRoom([bigGlowShapes], [])
   // sceneManager.addRoom([smallGlowShapes], [])
@@ -155,7 +156,7 @@ export function main() {
   ])
 
   // Test system
-  artInstallation.addSwarmSystems([C_initOrbitalMotionSystem])
+  // artInstallation.addSwarmSystems([C_initOrbitalMotionSystem])
   // Actual systems
   artInstallation.addSwarmSystems([
     rotateEntities,
@@ -167,6 +168,12 @@ export function main() {
     C_initRollingEffectSystem,
     C_initOrbitalMotionSystem
   ])
+
+  // Test system
+  artInstallation.addColorSystem([C_initRandomColor])
+  // Actual system
+  // artInstallation.addColorSystem([C_initRandomColor, C_initColorGradientTopBottom])
+
   // C_initBillboard // not interesting
   engine.addSystem(C_portalAnimationSystem, 3)
   engine.addSystem(C_updateAbstractTransformSystem, 5)
