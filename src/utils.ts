@@ -261,7 +261,7 @@ export function getQuaternion(roomId: string): Quaternion {
   return quaternion
 }
 
-class MyQuaternion {
+export class MyQuaternion {
   constructor(public w: number, public x: number, public y: number, public z: number) {}
 
   static multiply(q1: MyQuaternion, q2: MyQuaternion): MyQuaternion {
@@ -279,17 +279,40 @@ class MyQuaternion {
   }
 }
 
-// Function to rotate a vector using MyQuaternion
-export function rotateVector(
-  v: { x: number; y: number; z: number },
-  q: MyQuaternion
-): { x: number; y: number; z: number } {
-  let vectorQuat = new MyQuaternion(0, v.x, v.y, v.z)
-  let qInverse = MyQuaternion.invert(q)
-  let rotatedQuat = MyQuaternion.multiply(MyQuaternion.multiply(q, vectorQuat), qInverse)
-
-  return { x: rotatedQuat.x, y: rotatedQuat.y, z: rotatedQuat.z }
+export function rotateVector(vector: Vector3, quaternion: Quaternion): Vector3 {
+  // Similar to the previous function, rotate the vector by the quaternion
+  const vectorQuat = Quaternion.create(vector.x, vector.y, vector.z, 0)
+  const rotatedQuat = Quaternion.multiply(vectorQuat, MyQuaternion.invert(quaternion))
+  return Vector3.create(rotatedQuat.x, rotatedQuat.y, rotatedQuat.z)
 }
+
+export function applyRandomDirectionDeviation(direction: Vector3, deviationDegrees: number): Vector3 {
+  // Generate a random deviation angle
+  const deviationRadians = deviationDegrees * (Math.PI / 180)
+
+  // Generate a random axis of rotation by creating a normalized vector with random components
+  const randomAxis = Vector3.normalize(Vector3.create(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5))
+
+  // Create a rotation quaternion from the random axis and deviation angle
+  const rotationQuaternion = Quaternion.fromAngleAxis(deviationRadians, randomAxis)
+
+  // Rotate the direction vector by the quaternion
+  const rotatedDirection = rotateVector(direction, rotationQuaternion)
+
+  return rotatedDirection
+}
+
+// Function to rotate a vector using MyQuaternion
+// export function rotateVector(
+//   v: { x: number; y: number; z: number },
+//   q: MyQuaternion
+// ): { x: number; y: number; z: number } {
+//   let vectorQuat = new MyQuaternion(0, v.x, v.y, v.z)
+//   let qInverse = MyQuaternion.invert(q)
+//   let rotatedQuat = MyQuaternion.multiply(MyQuaternion.multiply(q, vectorQuat), qInverse)
+
+//   return { x: rotatedQuat.x, y: rotatedQuat.y, z: rotatedQuat.z }
+// }
 
 export function generateRandomString(length = 5) {
   let result = ''
@@ -299,4 +322,9 @@ export function generateRandomString(length = 5) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength))
   }
   return result
+}
+
+// Helper function for linear interpolation (lerp)
+export function lerp(start: number, end: number, progress: number) {
+  return start + (end - start) * progress
 }

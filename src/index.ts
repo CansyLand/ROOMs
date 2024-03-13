@@ -17,14 +17,7 @@ import {
 
 import { initAssetPacks } from '@dcl/asset-packs/dist/scene-entrypoint'
 
-import {
-  C_forceFieldSystem,
-  C_updateAbstractTransformSystem,
-  changeColorSystem,
-  circularSystem,
-  circularSystem2,
-  wiggleSystem
-} from './systems'
+import { C_forceFieldSystem, C_portalAnimationSystem, C_updateAbstractTransformSystem } from './systems'
 import { setupUi } from './ui'
 import { ArrayFromTo } from './roomInstallation'
 import { movePlayerTo } from '~system/RestrictedActions'
@@ -46,7 +39,17 @@ import {
   spiralShape,
   torusKnotShape
 } from './systems/SwarmShapes'
-import { rotateEntities, rotationSystem } from './systems/SwarmSystems'
+import {
+  C_initCircularFollowSystem,
+  C_initOrbitalMotionSystem,
+  C_initParticleSystem,
+  C_initRandomJump,
+  C_initRollingEffectSystem,
+  C_initWiggleSystem,
+  C_initializeRandomPositions,
+  rotateEntities,
+  rotationSystem
+} from './systems/SwarmSystems'
 
 // You can remove this if you don't use any asset packs
 initAssetPacks(engine, pointerEventsSystem, {
@@ -87,9 +90,17 @@ export function main() {
   // MODIFIED MESH CUBE
   const cube = engine.addEntity()
   GltfContainer.create(cube, {
-    src: 'models/cansy_cube_1.glb'
+    src: 'models/cansy_cube_3.glb'
   })
   Transform.create(cube, {
+    position: Vector3.create(8, 0, 8)
+  })
+
+  const background = engine.addEntity()
+  GltfContainer.create(background, {
+    src: 'models/cansy_cube_background.glb'
+  })
+  Transform.create(background, {
     position: Vector3.create(8, 0, 8)
   })
 
@@ -118,10 +129,10 @@ export function main() {
 
   // PORTALS
   const p = new PortalCreator(sceneManager)
-  p.createPortal(Vector3.create(1, 10, 8), Vector3.create(1, 0, 0), 'box')
-  p.createPortal(Vector3.create(15, 10, 8), Vector3.create(-1, 0, 0), 'box')
-  p.createPortal(Vector3.create(8, 10, 1), Vector3.create(0, 0, 1), 'box')
-  p.createPortal(Vector3.create(8, 10, 15), Vector3.create(0, 0, -1), 'box')
+  p.createPortal(Vector3.create(2, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(1, 0, 0), 'box')
+  p.createPortal(Vector3.create(14, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(-1, 0, 0), 'box')
+  p.createPortal(Vector3.create(8, 8.1288, 2), Vector3.create(0, 0, 0), Vector3.create(0, 0, 1), 'box')
+  p.createPortal(Vector3.create(8, 8.1288, 14), Vector3.create(0, 0, 0), Vector3.create(0, 0, -1), 'box')
 
   // sceneManager.addRoom([bigGlowShapes], [])
   // sceneManager.addRoom([smallGlowShapes], [])
@@ -143,10 +154,23 @@ export function main() {
     fibonacciSphereShape
   ])
 
-  artInstallation.addSwarmSystems([rotateEntities])
-
+  // Test system
+  artInstallation.addSwarmSystems([C_initOrbitalMotionSystem])
+  // Actual systems
+  artInstallation.addSwarmSystems([
+    rotateEntities,
+    C_initializeRandomPositions,
+    C_initRandomJump,
+    C_initCircularFollowSystem,
+    C_initParticleSystem,
+    C_initWiggleSystem,
+    C_initRollingEffectSystem,
+    C_initOrbitalMotionSystem
+  ])
+  // C_initBillboard // not interesting
+  engine.addSystem(C_portalAnimationSystem, 3)
   engine.addSystem(C_updateAbstractTransformSystem, 5)
-  engine.addSystem(C_forceFieldSystem, 10)
+  engine.addSystem(C_forceFieldSystem, 9)
 
   // sceneManager.addRoom(
   //   new RoomCoordinate(0, 0, 0),

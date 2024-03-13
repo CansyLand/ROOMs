@@ -3,6 +3,14 @@ import { Quaternion, Vector3 } from '@dcl/sdk/math'
 
 export const CansyComponent = engine.defineComponent('cansy-id', {})
 
+export const C_Portal = engine.defineComponent('c-portal', {
+  left: Schemas.Entity,
+  right: Schemas.Entity,
+  top: Schemas.Entity,
+  isOpening: Schemas.Boolean,
+  animationProgress: Schemas.Float
+})
+
 export const C_TransformComponentDefaultValues = {
   localTransform: {
     position: Vector3.Zero(),

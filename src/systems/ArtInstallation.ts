@@ -1,7 +1,9 @@
 import {
   Entity,
   GltfContainer,
+  Material,
   MeshRenderer,
+  SYSTEMS_REGULAR_PRIORITY,
   Transform,
   TransformComponent,
   TransformComponentExtended,
@@ -60,6 +62,11 @@ export class ArtInstallation {
       //   originalPosition: { x: 0, y: 0, z: 0 },
       //   isMoved: false
       // })
+      Material.setPbrMaterial(swarmEntity, {
+        albedoColor: { r: 4, g: 2, b: 4, a: 1 },
+        metallic: 0.8,
+        roughness: 0.1
+      })
     }
   }
 
@@ -85,6 +92,10 @@ export class ArtInstallation {
 
   getParentTransform(): TransformTypeWithOptionals {
     return this.parentTransform
+  }
+
+  getEntitesCount(): number {
+    return this.entitiesCount
   }
 
   addSwarmShapes(swarmShapes: SwarmShapeFunction[]) {
@@ -162,6 +173,17 @@ export class ArtInstallation {
 //     line
 //     line between entities
 //     GLTF
+
+// COLOR SYSTEMS
+
+// Color Palette !!!
+// gradient based on height
+// gradnient based on xyz
+// snake style movement
+// christmas tree
+// black?
+// change color over time
+// do nothing stay in color
 
 //      Wearable
 //      Emote
