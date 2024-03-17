@@ -18,8 +18,6 @@ import {
 import { initAssetPacks } from '@dcl/asset-packs/dist/scene-entrypoint'
 
 import { C_forceFieldSystem, C_portalAnimationSystem, C_updateAbstractTransformSystem } from './systems'
-import { setupUi } from './ui'
-import { ArrayFromTo } from './roomInstallation'
 import { movePlayerTo } from '~system/RestrictedActions'
 import { changeMaterial } from './utils'
 import { SceneManager } from './systems/SceneManager'
@@ -51,6 +49,7 @@ import {
   rotationSystem
 } from './systems/SwarmSystems'
 import { C_initRandomColor } from './systems/ColorSystems'
+import { RoomCoordinate } from './systems/RoomCoordinate'
 
 // You can remove this if you don't use any asset packs
 initAssetPacks(engine, pointerEventsSystem, {
@@ -63,6 +62,17 @@ initAssetPacks(engine, pointerEventsSystem, {
   Material,
   VideoPlayer
 })
+
+// 🔥🔥🔥🔥🔥🔥🔥🔥🔥
+// Create class with RoomCoordinat
+// paths to folders
+// door hole
+// show background only if you are in the cube
+// only start systems when inside cube
+// remove systems if outside cube
+// package systems, cretors and so on in classes
+// utils class
+// room 1 no sound
 
 //
 //  NO UI JUST TEXT SHAPES FOR TEXT
