@@ -18,10 +18,6 @@ export class SceneManager {
   private activeSystems: string[] = []
   private activeEntities: Entity[] = []
   private indexedRooms: IRoomConfig[] = []
-  //   private polygonCount: number = 0
-  //   private readonly maxPolygonCount: number = 9500 // Maximum allowed polygons
-  //   private entityCount: number = 0
-  //   private readonly maxEntityCount: number = 20 //180
 
   constructor() {
     this.initializeDefaultRoom()
@@ -123,38 +119,4 @@ export class SceneManager {
       return '0000000000000000000000000000000000000000'
     }
   }
-
-  //   addPolygon(count: number): boolean {
-  //     if (this.polygonCount < 9500) {
-  //       this.polygonCount += count
-  //       return true
-  //     } else {
-  //       return false
-  //     }
-  //   }
-
-  //   isMaxPolygonCountReached(): boolean {
-  //     return this.polygonCount >= this.maxPolygonCount
-  //   }
-
-  //   resetPolygon() {
-  //     this.polygonCount = 0
-  //   }
-
-  //   addEntiy() {
-  //     console.log(this.entityCount)
-  //     this.entityCount++
-  //   }
-
-  //   resetEntity() {
-  //     this.entityCount = 0
-  //   }
-
-  //   isMaxEntityCountReached(): boolean {
-  //     return this.entityCount >= this.maxEntityCount
-  //   }
-
-  //   isMaxedOut() {
-  //     return this.isMaxEntityCountReached() || this.isMaxPolygonCountReached()
-  //   }
 }

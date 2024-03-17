@@ -302,18 +302,6 @@ export function applyRandomDirectionDeviation(direction: Vector3, deviationDegre
   return rotatedDirection
 }
 
-// Function to rotate a vector using MyQuaternion
-// export function rotateVector(
-//   v: { x: number; y: number; z: number },
-//   q: MyQuaternion
-// ): { x: number; y: number; z: number } {
-//   let vectorQuat = new MyQuaternion(0, v.x, v.y, v.z)
-//   let qInverse = MyQuaternion.invert(q)
-//   let rotatedQuat = MyQuaternion.multiply(MyQuaternion.multiply(q, vectorQuat), qInverse)
-
-//   return { x: rotatedQuat.x, y: rotatedQuat.y, z: rotatedQuat.z }
-// }
-
 export function generateRandomString(length = 5) {
   let result = ''
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'

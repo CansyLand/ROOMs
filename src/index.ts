@@ -63,41 +63,11 @@ initAssetPacks(engine, pointerEventsSystem, {
   VideoPlayer
 })
 
-// 🔥🔥🔥🔥🔥🔥🔥🔥🔥
-// Create class with RoomCoordinat
-// paths to folders
-// door hole
-// show background only if you are in the cube
-// only start systems when inside cube
-// remove systems if outside cube
-// package systems, cretors and so on in classes
-// utils class
-// room 1 no sound
-
-//
-//  NO UI JUST TEXT SHAPES FOR TEXT
-//
-//
-
 // export const artInstallation = new ArtInstallation(Vector3.create(8, 20 - 8, 8), 180)
 export const artInstallation = new ArtInstallation({ x: 8, y: 20 - 10, z: 8 }, 180)
 export const sceneManager = new SceneManager()
 
 export function main() {
-  // Defining behavior. See `src/systems.ts` file.
-  // engine.addSystem(changeColorSystem)
-  // // draw UI. Here is the logic to spawn cubes.
-  // setupUi()
-
-  // MESH CUBE
-  // const cube = engine.addEntity()
-  // GltfContainer.create(cube, {
-  //   src: 'models/MESH CUBE 2024.glb'
-  // })
-  // Transform.create(cube, {
-  //   position: Vector3.create(9, 0, 7)
-  // })
-
   // MODIFIED MESH CUBE
   const cube = engine.addEntity()
   GltfContainer.create(cube, {
@@ -145,9 +115,6 @@ export function main() {
   p.createPortal(Vector3.create(8, 8.1288, 2), Vector3.create(0, 0, 0), Vector3.create(0, 0, 1), 'box', 'SOUTH')
   p.createPortal(Vector3.create(8, 8.1288, 14), Vector3.create(0, 0, 0), Vector3.create(0, 0, -1), 'box', 'NORTH')
 
-  // sceneManager.addRoom([bigGlowShapes], [])
-  // sceneManager.addRoom([smallGlowShapes], [])
-
   // Test installation
   // artInstallation.addSwarmShapes([fibonacciSphereShape])
   // Actual installation
@@ -188,82 +155,4 @@ export function main() {
   engine.addSystem(C_portalAnimationSystem, 3)
   engine.addSystem(C_updateAbstractTransformSystem, 5)
   engine.addSystem(C_forceFieldSystem, 9)
-
-  // sceneManager.addRoom(
-  //   new RoomCoordinate(0, 0, 0),
-  //   [circularSystem], // Assuming system1, system2 are defined
-  //   [room0]
-  // )
-  // sceneManager.addRoom(
-  //   new RoomCoordinate(1, 0, 0),
-  //   [], // Assuming system1, system2 are defined
-  //   [room1]
-  // )
-  // sceneManager.addRoom(
-  //   new RoomCoordinate(2, 0, 0),
-  //   [circularSystem2], // Assuming system1, system2 are defined
-  //   [room2]
-  // )
-  // // engine.addSystem(circularSystem)
-  // // Initialize room 0,0,0
-  // sceneManager.loadScene(new RoomCoordinate(0, 0, 0))
-
-  // function room0() {
-  //   const entity = ArrayFromTo({
-  //     shape: ['box', 'sphere', 'cone'],
-  //     startPosition: Vector3.create(1, 0, 1),
-  //     endPosition: Vector3.create(15, 0, 15),
-  //     length: 10,
-  //     rotation: Quaternion.fromEulerDegrees(0, 45, 90)
-  //   })
-  //   return [entity]
-  // }
-
-  // function room1() {
-  //   const entity = ArrayFromTo({
-  //     shape: ['box'],
-  //     startPosition: Vector3.create(1, 0, 1),
-  //     endPosition: Vector3.create(13, 0, 1),
-  //     length: 5
-  //     //rotation: Quaternion.fromEulerDegrees(0, 45, 90)
-  //   })
-  //   return [entity]
-  // }
-
-  // function room2() {
-  //   const entity = ArrayFromTo({
-  //     shape: ['sphere'],
-  //     startPosition: Vector3.create(4, 0, 1),
-  //     endPosition: Vector3.create(2, 0, 14),
-  //     length: 20
-  //     //rotation: Quaternion.fromEulerDegrees(0, 45, 90)
-  //   })
-  //   return [entity]
-  // }
-
-  //   const sCube = CubeSharp({
-  //     shape: ['box', '', 'box'],
-  //     size: 5,
-  //     center: {
-  //       x: 8,
-  //       y: 20 - 8,
-  //       z: 8
-  //     },
-  //     density: 1,
-  //     shapeSize: 2,
-  //     material: {
-  //       albedoColor: Color4.Red(),
-  //       metallic: 0.8,
-  //       roughness: 0.1
-  //     }
-  //   })
-
-  //   changeMaterial({
-  //     albedoColor: Color4.Blue(),
-  //     metallic: 0.8,
-  //     roughness: 0.1
-  //   })
 }
-
-// engine.addSystem(wiggleSystem)
-// engine.addSystem(changeMaterial)
