@@ -1,3 +1,6 @@
+/**
+ * Represents a coordinate in a 3D room.
+ */
 export class RoomCoordinate {
   constructor(public x: number, public y: number, public z: number) {}
 
@@ -9,6 +12,10 @@ export class RoomCoordinate {
     return this.x === other.x && this.y === other.y && this.z === other.z
   }
 
+  /**
+   * Generates a unique ID based on the coordinate values.
+   * @returns The generated unique ID.
+   */
   toUniqueId(): string {
     // Initial hash function using primes
     const prime1 = 73856093

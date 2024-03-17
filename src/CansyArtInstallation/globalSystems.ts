@@ -1,34 +1,41 @@
-import {
-  engine,
-  Transform,
-  inputSystem,
-  PointerEvents,
-  InputAction,
-  PointerEventType,
-  Material,
-  AudioSource
-} from '@dcl/sdk/ecs'
-import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
-import {
-  Spinner,
-  WiggleComponent,
-  CansyComponent,
-  C_ForceComponent,
-  C_TransformComponent,
-  C_Portal
-} from './components'
-import { getRandomHexColor, lerp } from './utils'
-import { artInstallation } from '.'
+import { engine, Transform, AudioSource } from '@dcl/sdk/ecs'
+import { Vector3 } from '@dcl/sdk/math'
+import { CansyComponent, Portal, TransformComponent } from './components'
+import { CansyArtInstallation } from './artInstallation'
+import { lerp, lerpWithEasing } from './miscUtils'
 
 // Manages the Transform of entities
 
-export function C_updateAbstractTransformSystem(dt: number) {
-  for (const [entity] of engine.getEntitiesWith(CansyComponent)) {
-    const transformComp = C_TransformComponent.getMutable(entity)
+export function checkIfPlayerIsInCube(dt: number) {
+  const distance = 7
+  const artInstallation = CansyArtInstallation.getInstance()
+  if (!artInstallation) return
+  const artPos = artInstallation.getParentTransfrom().position
+  if (!artPos) return
+  if (!Transform.has(engine.PlayerEntity)) return
+  const playerPos = Transform.get(engine.PlayerEntity).position
+  if (
+    playerPos.x > artPos.x - distance &&
+    playerPos.x < artPos.x + distance &&
+    playerPos.z < artPos.z + distance &&
+    playerPos.z > artPos.z - distance &&
+    playerPos.y > 7
+  ) {
+  } else {
+    artInstallation.clear()
+  }
+}
+
+export function updateAbstractTransformSystem(dt: number) {
+  const artInstallation = CansyArtInstallation.getInstance()
+  if (!artInstallation) return
+
+  for (const [entity] of engine.getEntitiesWith(CansyComponent, Transform)) {
+    const transformComp = TransformComponent.getMutable(entity)
     const entityTransform = Transform.getMutable(entity)
 
     // Calculate Global Transform Position (no need for rotation and scale)
-    const parentTransfrom = artInstallation.getParentTransform()
+    const parentTransfrom = artInstallation.getTransform()
     transformComp.globalTransform.position = Vector3.add(
       transformComp.localTransform.position,
       parentTransfrom.position!
@@ -45,12 +52,13 @@ export function C_updateAbstractTransformSystem(dt: number) {
 }
 
 // pushes entites away from player if to close
-export function C_forceFieldSystem(dt: number) {
+export function forceFieldSystem(dt: number) {
+  if (!Transform.has(engine.PlayerEntity)) return
   const playerPos = Transform.get(engine.PlayerEntity).position
   const forceFieldRadius = 3 // Set to 3 meters as specified
 
-  for (const [entity] of engine.getEntitiesWith(C_TransformComponent)) {
-    const transformComp = C_TransformComponent.getMutable(entity)
+  for (const [entity] of engine.getEntitiesWith(TransformComponent)) {
+    const transformComp = TransformComponent.getMutable(entity)
 
     // Calculate distance based on the entity's globalTransform position
     const directionToPlayer = Vector3.subtract(playerPos, transformComp.globalTransform.position)
@@ -74,10 +82,11 @@ export function C_forceFieldSystem(dt: number) {
   }
 }
 
-export function C_portalAnimationSystem(dt: number) {
-  for (const [portal] of engine.getEntitiesWith(C_Portal, Transform)) {
-    const portalComp = C_Portal.getMutable(portal)
+export function portalAnimationSystem(dt: number) {
+  for (const [portal] of engine.getEntitiesWith(Portal, Transform)) {
+    const portalComp = Portal.getMutable(portal)
     const portalTransform = Transform.get(portal)
+    if (!Transform.has(engine.PlayerEntity)) return
     const playerPos = Transform.get(engine.PlayerEntity).position
 
     // Calculate distance to player
@@ -93,11 +102,11 @@ export function C_portalAnimationSystem(dt: number) {
     portalComp.animationProgress = Math.max(0, Math.min(1, portalComp.animationProgress)) // Clamp progress between 0 and 1
 
     // Update portal components based on distance
-    C_updatePortalComponents(portalComp, dt)
+    updatePortalComponents(portalComp, dt)
   }
 }
 
-function C_updatePortalComponents(portalComp: any, dt: number) {
+function updatePortalComponents(portalComp: any, dt: number) {
   const leftBar = Transform.getMutable(portalComp.left)
   const rightBar = Transform.getMutable(portalComp.right)
   const topBar = Transform.getMutable(portalComp.top)
@@ -173,16 +182,4 @@ function C_updatePortalComponents(portalComp: any, dt: number) {
     })
     portalComp.audioTrigger = false
   }
-}
-
-// Ease-out function: starts fast, then decelerates
-function easeOutCubic(t: number) {
-  return 1 - Math.pow(1 - t, 3)
-}
-
-// Adjust the lerp function to include easing
-function lerpWithEasing(start: number, end: number, t: number) {
-  // Apply an easing function to 't'
-  const tEased = easeOutCubic(t)
-  return lerp(start, end, tEased)
 }
