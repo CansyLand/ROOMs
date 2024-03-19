@@ -1,4 +1,12 @@
-import { Entity, GltfContainer, InputAction, Transform, engine, pointerEventsSystem } from '@dcl/sdk/ecs'
+import {
+  Entity,
+  GltfContainer,
+  InputAction,
+  Transform,
+  VisibilityComponent,
+  engine,
+  pointerEventsSystem
+} from '@dcl/sdk/ecs'
 import { Quaternion, Vector3 } from '@dcl/sdk/math'
 import { RoomCoordinate } from './roomCoordinates'
 import { Portal } from './components'
@@ -48,12 +56,15 @@ export class PortalCreator {
       src: `${MODEL_PATH}/portal_collider.glb`
     })
 
+    VisibilityComponent.create(portal, { visible: false })
+
     // Save entities for poertals animation system
     Portal.create(portal, {
       right: this.createPortalPart(portal, FRAME_SCALE, 'portal_frame.glb'),
       left: this.createPortalPart(portal, FRAME_SCALE, 'portal_frame.glb'),
       top: this.createPortalPart(portal, TOP_FRAME_SCALE, 'portal_frame_top.glb'),
-      audioTrigger: true
+      audioTrigger: true,
+      visible: false
     })
   }
 
@@ -66,6 +77,7 @@ export class PortalCreator {
     GltfContainer.create(part, {
       src: `${MODEL_PATH}/${modelFile}`
     })
+    VisibilityComponent.create(part, { visible: false })
 
     return part
   }

@@ -1,10 +1,12 @@
-import { engine, Transform, AudioSource } from '@dcl/sdk/ecs'
+import { engine, Transform, AudioSource, VisibilityComponent } from '@dcl/sdk/ecs'
 import { Vector3 } from '@dcl/sdk/math'
 import { CansyComponent, Portal, TransformComponent } from './components'
 import { CansyArtInstallation } from './artInstallation'
 import { lerp, lerpWithEasing } from './miscUtils'
 
 // Manages the Transform of entities
+
+let playerIsInCube = false
 
 export function checkIfPlayerIsInCube(dt: number) {
   const distance = 7
@@ -21,12 +23,19 @@ export function checkIfPlayerIsInCube(dt: number) {
     playerPos.z > artPos.z - distance &&
     playerPos.y > 7
   ) {
+    playerIsInCube = true
+    artInstallation.playMusic()
+    // artInstallation.showInstallation() // already implemented by MESH
   } else {
+    playerIsInCube = false
+    artInstallation.stopMusic()
     artInstallation.clear()
   }
 }
 
 export function updateAbstractTransformSystem(dt: number) {
+  if (!playerIsInCube) return
+
   const artInstallation = CansyArtInstallation.getInstance()
   if (!artInstallation) return
 
@@ -53,6 +62,8 @@ export function updateAbstractTransformSystem(dt: number) {
 
 // pushes entites away from player if to close
 export function forceFieldSystem(dt: number) {
+  if (!playerIsInCube) return
+
   if (!Transform.has(engine.PlayerEntity)) return
   const playerPos = Transform.get(engine.PlayerEntity).position
   const forceFieldRadius = 3 // Set to 3 meters as specified
@@ -82,7 +93,35 @@ export function forceFieldSystem(dt: number) {
   }
 }
 
+let portalsVisible = false
+
 export function portalAnimationSystem(dt: number) {
+  if (!playerIsInCube) {
+    if (portalsVisible) {
+      // If player is not in cube make portals invisible
+      for (const [portal] of engine.getEntitiesWith(Portal, VisibilityComponent)) {
+        const p = Portal.get(portal)
+        VisibilityComponent.getMutable(p.left).visible = false
+        VisibilityComponent.getMutable(p.right).visible = false
+        VisibilityComponent.getMutable(p.top).visible = false
+      }
+      portalsVisible = false
+    }
+
+    return
+  } else {
+    // If player is in cube and portals are invisible make them visible
+    if (!portalsVisible) {
+      for (const [portal] of engine.getEntitiesWith(Portal, VisibilityComponent)) {
+        const p = Portal.get(portal)
+        VisibilityComponent.getMutable(p.left).visible = true
+        VisibilityComponent.getMutable(p.right).visible = true
+        VisibilityComponent.getMutable(p.top).visible = true
+      }
+      portalsVisible = true
+    }
+  }
+
   for (const [portal] of engine.getEntitiesWith(Portal, Transform)) {
     const portalComp = Portal.getMutable(portal)
     const portalTransform = Transform.get(portal)
@@ -107,6 +146,8 @@ export function portalAnimationSystem(dt: number) {
 }
 
 function updatePortalComponents(portalComp: any, dt: number) {
+  if (!playerIsInCube) return
+
   const leftBar = Transform.getMutable(portalComp.left)
   const rightBar = Transform.getMutable(portalComp.right)
   const topBar = Transform.getMutable(portalComp.top)

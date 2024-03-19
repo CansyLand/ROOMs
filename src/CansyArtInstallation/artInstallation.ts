@@ -9,6 +9,7 @@ import {
   Transform,
   TransformType,
   TransformTypeWithOptionals,
+  VisibilityComponent,
   engine,
   pointerEventsSystem
 } from '@dcl/sdk/ecs'
@@ -44,6 +45,10 @@ export class CansyArtInstallation {
   private audioEntity: Entity
   private parentTransform: TransformTypeWithOptionals
   sceneManager: SceneManager | undefined
+
+  private cube: Entity | undefined
+  private background: Entity | undefined
+  private installationHidden: boolean = true
 
   private swarmShapes: SwarmShapeFunction[] | null = null
   private swarmSystems: SystemInitFunction[] | null = null
@@ -215,14 +220,14 @@ export class CansyArtInstallation {
 
   static initPortals(sceneManager: SceneManager): void {
     const p = new PortalCreator(sceneManager)
-    p.createPortal(Vector3.create(2.5, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(1, 0, 0), 'WEST')
-    p.createPortal(Vector3.create(13.5, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(-1, 0, 0), 'EAST')
-    p.createPortal(Vector3.create(8, 8.1288, 2.4), Vector3.create(0, 0, 0), Vector3.create(0, 0, 1), 'SOUTH')
-    p.createPortal(Vector3.create(8, 8.1288, 13.5), Vector3.create(0, 0, 0), Vector3.create(0, 0, -1), 'NORTH')
-    // p.createPortal(Vector3.create(2, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(1, 0, 0), 'WEST')
-    // p.createPortal(Vector3.create(14, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(-1, 0, 0), 'EAST')
-    // p.createPortal(Vector3.create(8, 8.1288, 2), Vector3.create(0, 0, 0), Vector3.create(0, 0, 1), 'SOUTH')
-    // p.createPortal(Vector3.create(8, 8.1288, 14), Vector3.create(0, 0, 0), Vector3.create(0, 0, -1), 'NORTH')
+    // p.createPortal(Vector3.create(2.5, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(1, 0, 0), 'WEST')
+    // p.createPortal(Vector3.create(13.5, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(-1, 0, 0), 'EAST')
+    // p.createPortal(Vector3.create(8, 8.1288, 2.4), Vector3.create(0, 0, 0), Vector3.create(0, 0, 1), 'SOUTH')
+    // p.createPortal(Vector3.create(8, 8.1288, 13.5), Vector3.create(0, 0, 0), Vector3.create(0, 0, -1), 'NORTH')
+    p.createPortal(Vector3.create(2, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(1, 0, 0), 'WEST')
+    p.createPortal(Vector3.create(14, 8.1288, 8), Vector3.create(0, 90, 0), Vector3.create(-1, 0, 0), 'EAST')
+    p.createPortal(Vector3.create(8, 8.1288, 2), Vector3.create(0, 0, 0), Vector3.create(0, 0, 1), 'SOUTH')
+    p.createPortal(Vector3.create(8, 8.1288, 14), Vector3.create(0, 0, 0), Vector3.create(0, 0, -1), 'NORTH')
   }
 
   static initSystems(artInstallation: CansyArtInstallation) {
@@ -262,51 +267,57 @@ export class CansyArtInstallation {
   }
 
   initBuilds() {
-    const cube = engine.addEntity()
-    GltfContainer.create(cube, {
-      src: 'models/white_cube_2.glb'
-    })
-    Transform.create(cube, {
-      position: Vector3.create(8, 0, 8)
-    })
-
     // const cube = engine.addEntity()
     // GltfContainer.create(cube, {
-    //   src: 'models/cansy_cube_3.glb'
+    //   src: 'models/white_cube_2.glb'
     // })
     // Transform.create(cube, {
     //   position: Vector3.create(8, 0, 8)
     // })
-
-    // const background = engine.addEntity()
-    // GltfContainer.create(background, {
+    // this.cube = engine.addEntity()
+    // GltfContainer.create(this.cube, {
+    //   src: 'models/cansy_cube_4.glb'
+    // })
+    // Transform.create(this.cube, {
+    //   position: Vector3.create(8, 0, 8)
+    // })
+    // VisibilityComponent.create(this.cube, { visible: false })
+    // this.background = engine.addEntity()
+    // GltfContainer.create(this.background, {
     //   src: 'models/cansy_cube_background.glb'
     // })
-    // Transform.create(background, {
+    // Transform.create(this.background, {
     //   position: Vector3.create(8, 0, 8)
     // })
+    // VisibilityComponent.create(this.background, { visible: false })
+  }
 
-    // // ARROW UP
-    // const arrow = engine.addEntity()
-    // GltfContainer.create(arrow, {
-    //   src: 'models/arrow.glb'
-    // })
-    // Transform.create(arrow, {
-    //   position: Vector3.create(8, 0, 8)
-    // })
-    // pointerEventsSystem.onPointerDown(
-    //   {
-    //     entity: arrow,
-    //     opts: {
-    //       button: InputAction.IA_POINTER,
-    //       hoverText: 'Click'
-    //     }
-    //   },
-    //   function () {
-    //     movePlayerTo({
-    //       newRelativePosition: Vector3.create(8, 16, 8)
-    //     })
-    //   }
-    // )
+  showInstallation() {
+    if (this.cube && this.background && this.installationHidden) {
+      VisibilityComponent.getMutable(this.cube).visible = true
+      VisibilityComponent.getMutable(this.background).visible = true
+      this.installationHidden = false
+    }
+  }
+
+  hideInstallation() {
+    if (this.cube && this.background && !this.installationHidden) {
+      VisibilityComponent.getMutable(this.cube).visible = false
+      VisibilityComponent.getMutable(this.background).visible = false
+      this.installationHidden = true
+    }
+  }
+
+  playMusic() {
+    const audio = AudioSource.getOrNull(this.audioEntity)
+    if (audio && audio.playing == false) {
+      AudioSource.getMutable(this.audioEntity).playing = true
+    }
+  }
+  stopMusic() {
+    const audio = AudioSource.getOrNull(this.audioEntity)
+    if (audio && audio.playing) {
+      AudioSource.getMutable(this.audioEntity).playing = false
+    }
   }
 }

@@ -9,7 +9,8 @@ export const Portal = engine.defineComponent('c-portal', {
   top: Schemas.Entity,
   isOpening: Schemas.Boolean,
   animationProgress: Schemas.Float,
-  audioTrigger: Schemas.Boolean
+  audioTrigger: Schemas.Boolean,
+  visible: Schemas.Boolean
 })
 
 export const TransformComponentDefaultValues = {

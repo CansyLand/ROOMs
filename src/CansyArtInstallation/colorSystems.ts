@@ -86,7 +86,13 @@ export class ColorSystems {
 
     for (const [entity] of engine.getEntitiesWith(CansyComponent)) {
       ColorComponent.getMutable(entity).colors.base = { r, g, b, a: 1 }
-      Material.setPbrMaterial(entity, { albedoColor: { r, g, b, a: 1 }, metallic: 0.8, roughness: 0.1 })
+      Material.setPbrMaterial(entity, {
+        albedoColor: { r, g, b, a: 1 },
+        // emissiveColor: { r, g, b },
+        // emissiveIntensity: 4,
+        metallic: 0.8,
+        roughness: 0.1
+      })
     }
 
     const systemIdentifier = `system-${generateRandomString()}`
