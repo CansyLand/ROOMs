@@ -12,34 +12,88 @@ export class RoomCoordinate {
     return this.x === other.x && this.y === other.y && this.z === other.z
   }
 
-  /**
-   * Generates a unique ID based on the coordinate values.
-   * @returns The generated unique ID.
-   */
-  toUniqueId(): string {
-    // Initial hash function using primes
-    const prime1 = 73856093
-    const prime2 = 19349663
-    const prime3 = 83492791
-    let hash = Math.abs((this.x * prime1) ^ (this.y * prime2) ^ (this.z * prime3))
+  private static hashFunction(x: number, y: number, z: number): number {
+    // Simple hash function; adjust as needed
+    let hash = 5381
+    hash = (hash << 5) + hash + x
+    hash = (hash << 5) + hash + y
+    hash = (hash << 5) + hash + z
+    return hash & 0x7fffffff // Ensure positive 32-bit integer
+  }
 
-    // Factors to multiply by - these could also be primes or just numbers that provide good distribution
-    const factors = [123456789, 987654321, 112233445]
-    let idParts = [hash.toString()] // Start with the original hash as the first part of the ID
-
-    // Multiply hash by each factor and use parts of these products to build the ID
-    factors.forEach((factor) => {
-      let part = (hash * factor).toString()
-      // Take different parts of the product to ensure variability
-      idParts.push(part.substring(0, 6))
+  private static pseudoRandomPermutation(input: number): string {
+    let seed = input
+    let output = new Array(20).fill(0).map(() => {
+      seed = (seed * 1664525 + 1013904223) & 0xffffffff // Example LCG parameters
+      return seed % 10 // This should ensure all digits from 0-9 are possible
     })
+    return output.join('')
+  }
 
-    // Concatenate parts to form the final ID
-    let finalId = idParts.join('')
-    // Ensure the final ID is not too long or too short
-    finalId = finalId.substring(0, 20) // Adjust this as needed
+  toUniqueId(): string {
+    const hash = RoomCoordinate.hashFunction(this.x, this.y, this.z)
+    let id = RoomCoordinate.pseudoRandomPermutation(hash)
+    id = id.replace(/-/g, '') // Remove any hyphen characters from the ID
+    return id
+  }
 
-    if (finalId == '0000') finalId = '00000000000000000000000000000000'
-    return finalId
+  // toUniqueId(): string {
+  //   let originalId = this.toUniqueIdOriginal() // Call the original method instead of itself
+  //   let reversedId = [...originalId].reverse().join('')
+
+  //   // Assuming originalId and reversedId are of the same length
+  //   let summedId = ''
+  //   let carry = 0
+  //   for (let i = 0; i < originalId.length; i++) {
+  //     // Convert each character to a number, add them along with any carry from the previous step
+  //     let sum = parseInt(originalId[i], 10) + parseInt(reversedId[i], 10) + carry
+
+  //     // If the sum is 10 or more, we carry over to the next digit
+  //     carry = Math.floor(sum / 10)
+  //     sum = sum % 10 // We only want the remainder for the current position
+
+  //     summedId += sum.toString()
+  //   }
+
+  //   // If there's a carry left after the last addition, append it to the result
+  //   if (carry > 0) {
+  //     summedId += carry.toString()
+  //   }
+
+  //   return summedId
+  // }
+
+  // Method to test and log distribution of digits in IDs
+  static testDistribution(): void {
+    // Initialize a structure to hold the distribution of digits for each index
+    const distribution: { [index: number]: { [digit: string]: number } } = {}
+    for (let i = 0; i < 20; i++) {
+      // Assuming IDs are 20 digits long
+      distribution[i] = { '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0 }
+    }
+
+    // Generate IDs and update the distribution object for coordinates -5 to 5
+    for (let x = -5; x <= 5; x++) {
+      for (let z = -5; z <= 5; z++) {
+        const room = new RoomCoordinate(x, 0, z)
+        const id = room.toUniqueId()
+
+        // Update the distribution counts based on the current ID
+        ;[...id].forEach((digit, index) => {
+          if (distribution[index] && distribution[index][digit] !== undefined) {
+            distribution[index][digit] += 1
+          }
+        })
+      }
+    }
+
+    // Log the distribution results
+    Object.keys(distribution).forEach((indexStr) => {
+      const index = parseInt(indexStr, 10) // Explicitly convert index to number
+      console.log(`Distribution at index ${index}:`)
+      Object.keys(distribution[index]).forEach((digit) => {
+        console.log(`  Digit ${digit}: ${distribution[index][digit]}`)
+      })
+    })
   }
 }

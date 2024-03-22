@@ -82,8 +82,6 @@ export class ColorSystems {
     const g = extractAndMap(extractor, 3, 2, 4)
     const b = extractAndMap(extractor, 3, 2, 4)
 
-    console.log(r, g, b)
-
     for (const [entity] of engine.getEntitiesWith(CansyComponent)) {
       ColorComponent.getMutable(entity).colors.base = { r, g, b, a: 1 }
       Material.setPbrMaterial(entity, {

@@ -1,6 +1,7 @@
 import { engine, Entity } from '@dcl/sdk/ecs'
 import { RoomCoordinate } from './roomCoordinates'
 import { CansyArtInstallation } from './artInstallation'
+import { PlayerManager } from './playerManager'
 
 type SystemFunction = () => void
 
@@ -15,6 +16,8 @@ export class SceneManager {
   private roomConfigs: Map<string, IRoomConfig> = new Map()
   private activeSystems: string[] = []
   private activeEntities: Entity[] = []
+  private playerManager: PlayerManager = new PlayerManager()
+  private roomCounter: number = 0
 
   constructor(private artInstallation: CansyArtInstallation) {
     this.initializeDefaultRoom()
@@ -22,6 +25,7 @@ export class SceneManager {
 
   private initializeDefaultRoom(): void {
     this.loadScene(new RoomCoordinate(0, 0, 0))
+    RoomCoordinate.testDistribution()
   }
 
   loadScene(coordinate: RoomCoordinate): void {
@@ -40,7 +44,15 @@ export class SceneManager {
   }
 
   transitionToScene(newCoordinate: RoomCoordinate): void {
+    const currentRoom = this.currentRoom
+    if (currentRoom) {
+      const oldRoomID = currentRoom.toUniqueId()
+      const newRoomID = newCoordinate.toUniqueId()
+      this.playerManager.moveMyPlayerFromTo(oldRoomID, newRoomID)
+    }
+
     this.loadScene(newCoordinate)
+    this.roomCounter++
   }
 
   addRoomAtCoordinate(coordinate: RoomCoordinate, setupFunctions: (() => Entity)[], systems: SystemFunction[]): void {
@@ -80,6 +92,10 @@ export class SceneManager {
   }
 
   getCurrentRoomId(): string {
-    return this.currentRoom?.toUniqueId() ?? 'DEFAULT_ROOM_ID'
+    return this.currentRoom?.toUniqueId() ?? '00000000000000000000000000000000'
+  }
+
+  getRoomCounter(): number {
+    return this.roomCounter
   }
 }

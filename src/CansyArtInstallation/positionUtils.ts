@@ -54,8 +54,6 @@ export function movePlayerThroughPortal() {
   movePlayerTo({
     newRelativePosition: { x: newX, y: playerPos.y, z: newZ }
   })
-
-  console.log(`Player moved to (${newX}, ${playerPos.y}, ${newZ})`)
 }
 
 export function rotateCamera(): Vector3 {
@@ -67,8 +65,6 @@ export function rotateCamera(): Vector3 {
   let lookAtX = cameraPos.x
   let lookAtY = 0 // Desired camera height
   let lookAtZ = cameraPos.z
-
-  console.log(cameraPos)
 
   if (cameraEntity.mode == CameraType.CT_THIRD_PERSON) {
     console.log('The player is using the 3rd person camera')

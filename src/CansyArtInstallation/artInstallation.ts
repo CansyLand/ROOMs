@@ -14,7 +14,7 @@ import {
   pointerEventsSystem
 } from '@dcl/sdk/ecs'
 import { Vector3 } from '@dcl/sdk/math'
-import { audioFiles } from './audioFiles'
+import { audioFiles, speachFiles } from './audioFiles'
 import { CansyComponent, TransformComponent } from './components'
 import { ColorSystems } from './colorSystems'
 import { SceneManager } from './sceneManager'
@@ -43,6 +43,7 @@ export class CansyArtInstallation {
   private readonly maxPolygonCount: number = 9500
   private installationEntity: Entity
   private audioEntity: Entity
+  private speachEntity: Entity
   private parentTransform: TransformTypeWithOptionals
   sceneManager: SceneManager | undefined
 
@@ -61,6 +62,7 @@ export class CansyArtInstallation {
     this.parentTransform = config.transform
     this.initSwarmEntities()
     this.audioEntity = this.initAudioEntity()
+    this.speachEntity = this.initSpeachEntity()
     this.initBuilds()
   }
 
@@ -107,6 +109,12 @@ export class CansyArtInstallation {
 
   private initAudioEntity(): Entity {
     const entity = engine.addEntity()
+    Transform.create(entity, { parent: this.installationEntity, position: Vector3.create(0, 8, 0) })
+    return entity
+  }
+
+  private initSpeachEntity(): Entity {
+    const entity = engine.addEntity()
     Transform.create(entity, { parent: this.installationEntity, position: Vector3.create(0, 4, 0) })
     return entity
   }
@@ -142,6 +150,12 @@ export class CansyArtInstallation {
         loop: true,
         playing: false
       })
+    if (AudioSource.has(this.speachEntity))
+      AudioSource.createOrReplace(this.speachEntity, {
+        audioClipUrl: ``,
+        loop: false,
+        playing: false
+      })
   }
 
   addSwarmShapes(swarmShapes: SwarmShapeFunction[]): void {
@@ -154,7 +168,7 @@ export class CansyArtInstallation {
       console.error('Swarm shapes not set.')
       return
     }
-    const index = this.parseIdIndex(roomId, 0, 2, this.swarmShapes.length)
+    const index = this.parseIdIndex(roomId, 0, 3, this.swarmShapes.length)
     const shapeFunction = this.swarmShapes[index]
     shapeFunction(roomId, this.entitiesCount)
   }
@@ -168,10 +182,12 @@ export class CansyArtInstallation {
       console.error('Swarm systems not set.')
       return
     }
-    const index = this.parseIdIndex(roomId, 0, 2, this.swarmSystems.length)
+    const index = this.parseIdIndex(roomId, 0, 6, this.swarmSystems.length)
     const systemFunction = this.swarmSystems[index]
     const systemId = systemFunction(roomId, this.entitiesCount)
     this.activeSystems.push(systemId)
+
+    this.playSpeach()
   }
 
   addColorSystem(colorSystems: SystemInitFunction[]): void {
@@ -194,7 +210,21 @@ export class CansyArtInstallation {
     AudioSource.createOrReplace(this.audioEntity, {
       audioClipUrl: `audio/NASA/${audioFiles[index]}.mp3`,
       loop: true,
-      playing: true
+      playing: true,
+      volume: 0.2
+    })
+  }
+
+  playSpeach(): void {
+    const sceneManager = this.sceneManager
+    if (!sceneManager) return
+
+    const index = sceneManager.getRoomCounter()
+    AudioSource.createOrReplace(this.speachEntity, {
+      audioClipUrl: `audio/speach/${speachFiles[index]}.mp3`,
+      loop: false,
+      playing: true,
+      volume: 3
     })
   }
 
@@ -246,7 +276,7 @@ export class CansyArtInstallation {
       SwarmShapes.fibonacciSphereShape
     ])
 
-    // artInstallation.addSwarmSystems([C_initOrbitalMotionSystem])
+    // artInstallation.addSwarmSystems([SwarmSystems.initSquidwardDance])
     artInstallation.addSwarmSystems([
       SwarmSystems.initRotateEntities,
       SwarmSystems.initRandomPositions,
@@ -255,7 +285,8 @@ export class CansyArtInstallation {
       SwarmSystems.initParticleSystem,
       SwarmSystems.initWiggleSystem,
       SwarmSystems.initRollingEffectSystem,
-      SwarmSystems.initOrbitalMotionSystem
+      SwarmSystems.initOrbitalMotionSystem,
+      SwarmSystems.initSquidwardDance
     ])
 
     artInstallation.addColorSystem([ColorSystems.initRandomColor])

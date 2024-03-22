@@ -423,6 +423,64 @@ export class SwarmSystems {
     }
   }
 
+  // 🟡 SQUIDWARD DANCE 🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡
+
+  static initSquidwardDance(roomId: string, entitiesCount: number): string {
+    const extractor = createSubstringExtractor(roomId)
+    extractAndMap(extractor, 4, 0.1, 5) // Skip first 4 digits
+    const amplitude = extractAndMap(extractor, 2, -1, 1)
+    const speed = extractAndMap(extractor, 2, 0.1, 5)
+
+    const scale = extractAndMap(extractor, 2, 0.1, 1)
+    const baseScale = Vector3.create(scale, scale, scale)
+    const baseScaleVariation = extractAndMap(extractor, 2, 0, 1)
+
+    const phaseIncrement = (2 * Math.PI) / entitiesCount
+    let currentPhaseOffset = 0
+
+    const minScale = 0.05
+    const maxScale = 1
+
+    for (const [entity] of engine.getEntitiesWith(CansyComponent)) {
+      // Calculate individual scale variation based on baseScaleVariation
+      const variation = baseScaleVariation * (Math.random() * (maxScale - minScale) + minScale)
+      const individualScale = Vector3.create(baseScale.x * variation, baseScale.y * variation, baseScale.z * variation)
+
+      WiggleComponent.createOrReplace(entity, {
+        basePosition: individualScale, // Assuming this gets the current position
+        amplitude: amplitude,
+        wavelength: 0,
+        speed: speed,
+        phaseOffset: currentPhaseOffset
+      })
+
+      currentPhaseOffset += phaseIncrement // Increment phase offset for the next entity
+    }
+    const systemIdentifier = `system-${generateRandomString()}`
+    engine.addSystem(SwarmSystems.squidwardDance, 1, systemIdentifier)
+
+    return systemIdentifier
+  }
+
+  private static squidwardDance(dt: number) {
+    const currentTime = (time += dt)
+    for (const [entity] of engine.getEntitiesWith(TransformComponent, WiggleComponent)) {
+      const scaleComp = WiggleComponent.get(entity)
+      const transformComp = TransformComponent.getMutable(entity)
+
+      // Calculate the sine wave value
+      const theta = currentTime * scaleComp.speed + scaleComp.phaseOffset
+      const waveOffset = Math.sin(theta) * scaleComp.amplitude
+
+      // Apply the waveOffset to scale the x dimension and inversely scale y and z dimensions
+      transformComp.localTransform.scale.x = scaleComp.basePosition.x * (1 + waveOffset)
+      // Ensure y and z scales inversely adjust, maintaining some overall volume
+      const inverseWaveOffset = 1 / (1 + waveOffset)
+      transformComp.localTransform.scale.y = scaleComp.basePosition.y * inverseWaveOffset
+      transformComp.localTransform.scale.z = scaleComp.basePosition.z * inverseWaveOffset
+    }
+  }
+
   // 🟡 ORBITAL 🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡
 
   static initOrbitalMotionSystem(roomId: string): string {
