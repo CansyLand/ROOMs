@@ -23,25 +23,25 @@ export function main() {
 
   // BUTTON TO TELEPORT INTO THE CUBE
 
-  // const arrow = engine.addEntity()
-  // GltfContainer.create(arrow, {
-  //   src: 'models/arrow.glb'
-  // })
-  // Transform.create(arrow, {
-  //   position: Vector3.create(8, 0, 8)
-  // })
-  // pointerEventsSystem.onPointerDown(
-  //   {
-  //     entity: arrow,
-  //     opts: {
-  //       button: InputAction.IA_POINTER,
-  //       hoverText: 'Click'
-  //     }
-  //   },
-  //   function () {
-  //     movePlayerTo({
-  //       newRelativePosition: Vector3.create(8, 16, 8)
-  //     })
-  //   }
-  // )
+  const arrow = engine.addEntity()
+  GltfContainer.create(arrow, {
+    src: 'models/arrow.glb'
+  })
+  Transform.create(arrow, {
+    position: Vector3.create(8, 0, 8)
+  })
+  pointerEventsSystem.onPointerDown(
+    {
+      entity: arrow,
+      opts: {
+        button: InputAction.IA_POINTER,
+        hoverText: 'Click'
+      }
+    },
+    function () {
+      movePlayerTo({
+        newRelativePosition: Vector3.create(8, 16, 8)
+      })
+    }
+  )
 }
